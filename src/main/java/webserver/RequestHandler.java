@@ -77,7 +77,7 @@ public class RequestHandler extends Thread{
         }
     }
 
-    private void response200LoginHeader(DataOutputStream dos, int lengthOfBodyContent, User loginUser) {
+    private void response302LoginHeader(DataOutputStream dos, int lengthOfBodyContent, User loginUser) {
         try {
             if (loginUser != null)
             {
@@ -89,6 +89,22 @@ public class RequestHandler extends Thread{
                 dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
                 dos.writeBytes("\r\n");// 웹은 헤더와 body를 구분할 때 \r\n\r\n로 구분함//
                 }
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302LoginFail(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+                dos.writeBytes("HTTP/1.1 302 OK \r\n");
+                dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+                dos.writeBytes("location: http://localhost:8080/login_failed.html"+"\r\n");
+                dos.writeBytes("Cookie: logined=true\r\n");
+                dos.writeBytes("Set-cookie: logined=false\r\n");
+                dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+                dos.writeBytes("\r\n");// 웹은 헤더와 body를 구분할 때 \r\n\r\n로 구분함//
+
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -135,13 +151,22 @@ public class RequestHandler extends Thread{
             String[] acc = new String[4];
             acc=parseParam(params);
             User loginUser = DataBase.findUserById(acc[0]);
-            log.debug("id: {}",loginUser.getUserId());
             try {
-                response200LoginHeader(dos,body.length,loginUser);
+                log.debug("id: {}", loginUser.getUserId());
+                response302LoginHeader(dos,body.length,loginUser);
                 responseBody(dos,body);
-            } catch(Exception e)
-            {
+            }
+            catch(Exception e){
                 e.printStackTrace();
+                try {
+                    byte[] loginfail=Files.readAllBytes(new File("./webapp"+"/user/login_failed.html").toPath());
+                    response302LoginFail(dos,loginfail.length);
+                    responseBody(dos,loginfail);
+
+               } catch(Exception ie)
+                {
+                ie.printStackTrace();
+                }
             }
         }
         else{
