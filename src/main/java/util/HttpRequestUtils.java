@@ -33,7 +33,7 @@ public class HttpRequestUtils {
         return path;
     }
     public static Map<String, String> parseCookies(String cookies) {
-        return parseValues(cookies, ";");
+        return parseValues(cookies, " ");
     }
 
     private static Map<String, String> parseValues(String values, String separator) {
