@@ -46,10 +46,10 @@ public class HttpRequest{
         return line;
     }
     public HttpMethod getMethod(){
-        return method;
+        return requestLine.getMethod();
     }
     public String getPath(){
-        return path;
+        return requestLine.getPath();
     }
     public String getHeader(String name){
         return headers.getHeader(name);
@@ -57,5 +57,7 @@ public class HttpRequest{
     public String getParameter(String name){
         return requestParams.getParameter(name);
     }
+    public HttpSession getSession(){ return headers.getSession();}
+    public HttpCookie getCookies() { return headers.getCookie();}
 }
 
